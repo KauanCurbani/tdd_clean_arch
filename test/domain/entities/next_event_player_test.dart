@@ -19,26 +19,19 @@ class NextEventPlayer {
 
   String getInitials() {
     final names = name.split(" ");
-    return '${names[0][0]}${names[1][0]}';
+    final firstChar = names.first[0];
+    final lastChar = names.last[0];
+    return '$firstChar$lastChar';
   }
 }
 
 void main() {
+  NextEventPlayer makeSut(String name) =>
+      NextEventPlayer(id: "", name: name, isConfirmed: true);
+
   test("should return the first letter of the first and last names", () {
-    final player = NextEventPlayer(
-      id: "",
-      name: "John Doe",
-      isConfirmed: true,
-    );
-
-    expect(player.getInitials(), "JD");
-
-    final player2 = NextEventPlayer(
-      id: "",
-      name: "Kauan Curbani",
-      isConfirmed: true,
-    );
-    
-    expect(player2.getInitials(), "KC");
+    expect(makeSut("John Doe").getInitials(), "JD");
+    expect(makeSut("Kauan Curbani").getInitials(), "KC");
+    expect(makeSut("João Paulo da Silva").getInitials(), "JS");
   });
 }
