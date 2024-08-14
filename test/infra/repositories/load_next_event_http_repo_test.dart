@@ -51,33 +51,33 @@ void main() {
   late Client client;
   late LoadNextEventHttpRepository sut;
   const url = "https://any-url.com/api/v1/groups/:groupId/next-event";
+  String jsonResponse = jsonEncode({
+    "groupName": "Group Name",
+    "date": DateTime.now().toIso8601String(),
+    "players": [
+      {
+        "id": "1",
+        "name": "Player 1",
+        "isConfirmed": true,
+        "confirmationDate": DateTime.now().toIso8601String(),
+        "photo": "photo",
+        "position": "position"
+      },
+      {
+        "id": "2",
+        "name": "Player 2",
+        "isConfirmed": false,
+      },
+    ]
+  });
 
   setUp(() {
     groupId = Faker().guid.guid();
     client = MockClient();
     sut = LoadNextEventHttpRepository(httpClient: client, url: url);
+
     when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response(
-            jsonEncode({
-              "groupName": "Group Name",
-              "date": DateTime.now().toIso8601String(),
-              "players": [
-                {
-                  "id": "1",
-                  "name": "Player 1",
-                  "isConfirmed": true,
-                  "confirmationDate": DateTime.now().toIso8601String(),
-                  "photo": "photo",
-                  "position": "position"
-                },
-                {
-                  "id": "2",
-                  "name": "Player 2",
-                  "isConfirmed": false,
-                },
-              ]
-            }),
-            200));
+        .thenAnswer((_) async => Response(jsonResponse, 200));
   });
 
   setUpAll(() => {registerFallbackValue(FakeUri())});
