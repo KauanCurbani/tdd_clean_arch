@@ -38,7 +38,6 @@ class NextEventPlayer {
 
   static String _getInitials(String name) {
     if (name.isEmpty) return "-";
-
     final names = name.toUpperCase().trim().split(" ");
     final firstChar = names.first.split("").firstOrNull ?? "-";
     final lastChar =
