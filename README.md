@@ -1,16 +1,25 @@
-# advanced_flutter
+# Flutter Clean Architecture Project
 
-A new Flutter project.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## Flutter Version Management
 
-A few resources to get you started if this is your first Flutter project:
+[FVM installation](https://fvm.app/documentation/getting-started/installation)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+In this project, we are using `fvm` to manage the Flutter SDK version. To install the Flutter SDK version specified in the `.fvm` file, run the following command:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+fvm install
+```
+
+To run the project, run the following command:
+
+```bash
+fvm flutter run
+```
+
+To run the project in a specific device, run the following command:
+
+```bash
+fvm flutter run -d <device_id>
+```
