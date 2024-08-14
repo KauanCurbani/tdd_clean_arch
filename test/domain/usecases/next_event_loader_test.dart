@@ -9,8 +9,6 @@ import 'package:mockito/mockito.dart';
 
 import 'next_event_loader_test.mocks.dart';
 
-
-
 @GenerateMocks([LoadNextEventRepository])
 void main() {
   late LoadNextEventRepository repo;
