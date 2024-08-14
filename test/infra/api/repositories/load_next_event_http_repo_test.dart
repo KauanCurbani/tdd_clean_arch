@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:advanced_flutter/domain/entities/domain_error.dart';
 import 'package:advanced_flutter/domain/entities/next_event.dart';
 import 'package:advanced_flutter/domain/entities/next_event_player.dart';
-import 'package:advanced_flutter/infra/repositories/load_next_event_http_repo.dart';
+import 'package:advanced_flutter/infra/api/repositories/load_next_event_http_repo.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';

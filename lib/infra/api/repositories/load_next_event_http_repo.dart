@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:advanced_flutter/domain/entities/domain_error.dart';
 import 'package:advanced_flutter/domain/entities/next_event.dart';
 import 'package:advanced_flutter/domain/entities/next_event_player.dart';
 import 'package:advanced_flutter/domain/repositories/load_next_event_repository.dart';
@@ -50,4 +51,3 @@ class LoadNextEventHttpRepository implements LoadNextEventRepository {
   }
 }
 
-enum DomainError { unexpected, sessionExpired }
