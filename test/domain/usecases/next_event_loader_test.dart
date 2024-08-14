@@ -1,6 +1,7 @@
 import 'package:advanced_flutter/domain/entities/next_event.dart';
 import 'package:advanced_flutter/domain/entities/next_event_player.dart';
 import 'package:advanced_flutter/domain/repositories/load_next_event_repository.dart';
+import 'package:advanced_flutter/domain/usecases/next_event_loader.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -8,15 +9,7 @@ import 'package:mockito/mockito.dart';
 
 import 'next_event_loader_test.mocks.dart';
 
-class NextEventLoader {
-  final LoadNextEventRepository repository;
 
-  NextEventLoader({required this.repository});
-
-  Future<NextEvent> call({required String groupId}) async {
-    return await repository.loadNextEvent(groupId: groupId);
-  }
-}
 
 @GenerateMocks([LoadNextEventRepository])
 void main() {
