@@ -6,11 +6,16 @@ import 'package:mocktail/mocktail.dart';
 class LoadNextEventHttpRepository {
   final Client httpClient;
   final String url;
+  Map<String, String> headers = {
+    "content-type": "application/json",
+    "accept": "application/json",
+  };
 
   LoadNextEventHttpRepository({required this.httpClient, required this.url});
 
   Future<void> loadNextEvent({required String groupId}) async {
-    await httpClient.get(Uri.parse(url.replaceFirst(":groupId", groupId)));
+    await httpClient.get(Uri.parse(url.replaceFirst(":groupId", groupId)),
+        headers: headers);
   }
 }
 
@@ -28,19 +33,26 @@ void main() {
     groupId = Faker().guid.guid();
     client = MockClient();
     sut = LoadNextEventHttpRepository(httpClient: client, url: url);
-    when(() => client.get(any())).thenAnswer((_) async => Response("", 200));
+    when(() => client.get(any(), headers: any(named: "headers")))
+        .thenAnswer((_) async => Response("", 200));
   });
 
   setUpAll(() => {registerFallbackValue(FakeUri())});
 
   test("should request with correct method", () async {
     await sut.loadNextEvent(groupId: groupId);
-    verify(() => client.get(any())).called(1);
+    verify(() => client.get(any(), headers: any(named: "headers"))).called(1);
   });
 
   test("should request with correct url", () async {
     await sut.loadNextEvent(groupId: groupId);
     Uri expectedUri = Uri.parse(url.replaceFirst(":groupId", groupId));
-    verify(() => client.get(expectedUri)).called(1);
+    verify(() => client.get(expectedUri, headers: any(named: "headers")))
+        .called(1);
+  });
+
+  test("should request with correct headers", () async {
+    await sut.loadNextEvent(groupId: groupId);
+    verify(() => client.get(any(), headers: sut.headers)).called(1);
   });
 }
