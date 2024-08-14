@@ -7,20 +7,38 @@ class NextEventPlayer {
   final String? position;
   final bool isConfirmed;
   final DateTime? confirmationDate;
-  late final String initials;
+  final String initials;
 
-  NextEventPlayer({
+  NextEventPlayer._({
     required this.id,
     required this.name,
     required this.isConfirmed,
+    required this.initials,
     this.photo,
     this.position,
     this.confirmationDate,
+  });
+
+  factory NextEventPlayer({
+    required String id,
+    required String name,
+    required bool isConfirmed,
+    String? photo,
+    String? position,
+    DateTime? confirmationDate,
   }) {
-    initials = _getInitials();
+    return NextEventPlayer._(
+      id: id,
+      name: name,
+      isConfirmed: isConfirmed,
+      photo: photo,
+      position: position,
+      confirmationDate: confirmationDate,
+      initials: _getInitials(name),
+    );
   }
 
-  String _getInitials() {
+  static String _getInitials(String name) {
     final names = name.split(" ");
     final firstChar = names.first[0];
     final lastChar = names.last[0];
