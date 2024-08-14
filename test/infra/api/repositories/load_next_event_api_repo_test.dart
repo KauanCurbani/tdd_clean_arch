@@ -5,6 +5,9 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+typedef Json = Map<String, dynamic>;
+typedef JsonArr = List<Json>;
+
 class LoadNextEventApiRepository implements LoadNextEventRepository {
   final String url;
   final HttpGetClient httpClient;
@@ -13,7 +16,7 @@ class LoadNextEventApiRepository implements LoadNextEventRepository {
 
   @override
   Future<NextEvent> loadNextEvent({required String groupId}) async {
-    final response = await httpClient.get(
+    final response = await httpClient.get<Json>(
       url: url,
       params: {"groupId": groupId},
     );
@@ -22,7 +25,7 @@ class LoadNextEventApiRepository implements LoadNextEventRepository {
 }
 
 class NextEventMapper {
-  static NextEvent fromJson(Map<String, dynamic> json) {
+  static NextEvent fromJson(Json json) {
     return NextEvent(
       groupName: json["groupName"],
       date: DateTime.parse(json["date"]),
@@ -32,7 +35,7 @@ class NextEventMapper {
 }
 
 class NextEventPlayerMapper {
-  static NextEventPlayer fromJson(Map<String, dynamic> json) {
+  static NextEventPlayer fromJson(Json json) {
     return NextEventPlayer(
       id: json["id"],
       name: json["name"],
@@ -43,13 +46,13 @@ class NextEventPlayerMapper {
     );
   }
 
-  static List<NextEventPlayer> fromListJson(List<Map<String, dynamic>> json) {
+  static List<NextEventPlayer> fromListJson(JsonArr json) {
     return json.map(fromJson).toList();
   }
 }
 
 abstract class HttpGetClient {
-  Future<dynamic> get({required String url, Map<String, String>? params});
+  Future<T> get<T>({required String url, Map<String, String>? params});
 }
 
 class HttpGetClientMock with Mock implements HttpGetClient {}
@@ -59,7 +62,7 @@ void main() {
   late String url;
   late HttpGetClient httpClient;
   late LoadNextEventApiRepository sut;
-  Map<String, dynamic> jsonResponse = {
+  Json jsonResponse = {
     "groupName": "Group Name",
     "date": DateTime.now().toIso8601String(),
     "players": [
@@ -85,7 +88,7 @@ void main() {
     httpClient = HttpGetClientMock();
     sut = LoadNextEventApiRepository(httpClient: httpClient, url: url);
 
-    when(() => httpClient.get(
+    when(() => httpClient.get<Json>(
         url: any(named: "url"),
         params: any(named: "params"))).thenAnswer((_) async {
       return jsonResponse;
@@ -94,13 +97,13 @@ void main() {
 
   test("should call httpClient with correct url", () async {
     await sut.loadNextEvent(groupId: groupId);
-    verify(() => httpClient.get(url: url, params: any(named: "params")))
+    verify(() => httpClient.get<Json>(url: url, params: any(named: "params")))
         .called(1);
   });
 
   test("should call httpClient with correct params", () async {
     await sut.loadNextEvent(groupId: groupId);
-    verify(() => httpClient.get(
+    verify(() => httpClient.get<Json>(
           url: any(named: "url"),
           params: {"groupId": groupId},
         )).called(1);
@@ -131,7 +134,7 @@ void main() {
   });
 
   test("should rethrow on error", () {
-    when(() => httpClient.get(
+    when(() => httpClient.get<Json>(
         url: any(named: "url"),
         params: any(named: "params"))).thenThrow(Exception());
     final future = sut.loadNextEvent(groupId: groupId);
