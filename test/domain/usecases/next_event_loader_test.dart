@@ -54,6 +54,11 @@ void main() {
     expect(event.players[0].name, defaultEvent.players[0].name);
     expect(event.players[0].isConfirmed, defaultEvent.players[0].isConfirmed);
     expect(event.players[0].initials, isNotEmpty);
+
+    expect(event.players[1].id, defaultEvent.players[1].id);
+    expect(event.players[1].name, defaultEvent.players[1].name);
+    expect(event.players[1].isConfirmed, defaultEvent.players[1].isConfirmed);
+    expect(event.players[1].initials, isNotEmpty);
   });
 
   test("should rethrow on error", () {
