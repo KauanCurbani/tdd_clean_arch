@@ -1,57 +1,11 @@
 import 'package:advanced_flutter/domain/entities/next_event.dart';
 import 'package:advanced_flutter/domain/entities/next_event_player.dart';
-import 'package:advanced_flutter/domain/repositories/load_next_event_repository.dart';
+import 'package:advanced_flutter/infra/api/client/http_get_client.dart';
+import 'package:advanced_flutter/infra/api/repositories/load_next_event_api_repo.dart';
 import 'package:advanced_flutter/infra/types/json.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
-class LoadNextEventApiRepository implements LoadNextEventRepository {
-  final String url;
-  final HttpGetClient httpClient;
-
-  LoadNextEventApiRepository({required this.httpClient, required this.url});
-
-  @override
-  Future<NextEvent> loadNextEvent({required String groupId}) async {
-    final response = await httpClient.get<Json>(
-      url: url,
-      params: {"groupId": groupId},
-    );
-    return NextEventMapper.fromJson(response);
-  }
-}
-
-class NextEventMapper {
-  static NextEvent fromJson(Json json) {
-    return NextEvent(
-      groupName: json["groupName"],
-      date: DateTime.parse(json["date"]),
-      players: NextEventPlayerMapper.fromListJson(json["players"]),
-    );
-  }
-}
-
-class NextEventPlayerMapper {
-  static NextEventPlayer fromJson(Json json) {
-    return NextEventPlayer(
-      id: json["id"],
-      name: json["name"],
-      isConfirmed: json["isConfirmed"],
-      confirmationDate: DateTime.tryParse(json["confirmationDate"] ?? ""),
-      photo: json["photo"],
-      position: json["position"],
-    );
-  }
-
-  static List<NextEventPlayer> fromListJson(JsonArr json) {
-    return json.map(fromJson).toList();
-  }
-}
-
-abstract class HttpGetClient {
-  Future<T> get<T>({required String url, Map<String, String>? params});
-}
 
 class HttpGetClientMock with Mock implements HttpGetClient {}
 
