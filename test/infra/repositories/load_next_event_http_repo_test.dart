@@ -1,7 +1,6 @@
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mocktail/mocktail.dart';
 
 class LoadNextEventHttpRepository {
@@ -18,7 +17,6 @@ class MockClient extends Mock implements Client {}
 
 class FakeUri extends Fake implements Uri {}
 
-@GenerateMocks([Client])
 void main() {
   late String groupId;
   late Client client;
