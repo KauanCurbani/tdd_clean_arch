@@ -20,9 +20,9 @@ class NextEventLoader {
 
 @GenerateMocks([LoadNextEventRepository])
 void main() {
-  late final LoadNextEventRepository repo;
-  late final NextEventLoader sut;
-  late final String groupId;
+  late LoadNextEventRepository repo;
+  late NextEventLoader sut;
+  late String groupId;
 
   final NextEvent defaultEvent = NextEvent(
     groupName: "Group Name",
@@ -61,5 +61,11 @@ void main() {
     expect(event.players[0].name, defaultEvent.players[0].name);
     expect(event.players[0].isConfirmed, defaultEvent.players[0].isConfirmed);
     expect(event.players[0].initials, isNotEmpty);
+  });
+
+  test("should rethrow on error", () {
+    when(repo.loadNextEvent(groupId: groupId)).thenThrow(Exception());
+    final future = sut(groupId: groupId);
+    expect(future, throwsA(isA<Exception>()));
   });
 }
