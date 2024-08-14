@@ -17,21 +17,34 @@ class LoadNextEventApiRepository implements LoadNextEventRepository {
       url: url,
       params: {"groupId": groupId},
     );
+    return NextEventMapper.fromJson(response);
+  }
+}
+
+class NextEventMapper {
+  static NextEvent fromJson(Map<String, dynamic> json) {
     return NextEvent(
-      groupName: response["groupName"],
-      date: DateTime.parse(response["date"]),
-      players: (response["players"] as List)
-          .map((player) => NextEventPlayer(
-                id: player["id"],
-                name: player["name"],
-                isConfirmed: player["isConfirmed"],
-                confirmationDate:
-                    DateTime.tryParse(player["confirmationDate"] ?? ""),
-                photo: player["photo"],
-                position: player["position"],
-              ))
-          .toList(),
+      groupName: json["groupName"],
+      date: DateTime.parse(json["date"]),
+      players: NextEventPlayerMapper.fromListJson(json["players"]),
     );
+  }
+}
+
+class NextEventPlayerMapper {
+  static NextEventPlayer fromJson(Map<String, dynamic> json) {
+    return NextEventPlayer(
+      id: json["id"],
+      name: json["name"],
+      isConfirmed: json["isConfirmed"],
+      confirmationDate: DateTime.tryParse(json["confirmationDate"] ?? ""),
+      photo: json["photo"],
+      position: json["position"],
+    );
+  }
+
+  static List<NextEventPlayer> fromListJson(List<Map<String, dynamic>> json) {
+    return json.map(fromJson).toList();
   }
 }
 
@@ -115,5 +128,13 @@ void main() {
     expect(event.players[1].isConfirmed,
         jsonResponse["players"][1]["isConfirmed"]);
     expect(event.players[1].initials, isNotEmpty);
+  });
+
+  test("should rethrow on error", () {
+    when(() => httpClient.get(
+        url: any(named: "url"),
+        params: any(named: "params"))).thenThrow(Exception());
+    final future = sut.loadNextEvent(groupId: groupId);
+    expect(future, throwsA(isA<Exception>()));
   });
 }
