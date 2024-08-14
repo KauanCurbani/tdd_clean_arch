@@ -21,12 +21,14 @@ class LoadNextEventHttpRepository implements LoadNextEventRepository {
         Uri.parse(url.replaceFirst(":groupId", groupId)),
         headers: _headers);
 
-    if (response.statusCode == 400) throw DomainError.unexpected;
-    if (response.statusCode == 401) throw DomainError.sessionExpired;
-    if (response.statusCode == 403) throw DomainError.unexpected;
-    if (response.statusCode == 404) throw DomainError.unexpected;
-    if (response.statusCode == 500) throw DomainError.unexpected;
-
+    switch (response.statusCode) {
+      case 200:
+        break;
+      case 401:
+        throw DomainError.sessionExpired;
+      default:
+        throw DomainError.unexpected;
+    }
 
     final event = jsonDecode(response.body);
 
