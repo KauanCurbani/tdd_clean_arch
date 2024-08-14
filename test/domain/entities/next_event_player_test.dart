@@ -7,6 +7,7 @@ class NextEventPlayer {
   final String? position;
   final bool isConfirmed;
   final DateTime? confirmationDate;
+  late final String initials;
 
   NextEventPlayer({
     required this.id,
@@ -15,9 +16,11 @@ class NextEventPlayer {
     this.photo,
     this.position,
     this.confirmationDate,
-  });
+  }) {
+    initials = _getInitials();
+  }
 
-  String getInitials() {
+  String _getInitials() {
     final names = name.split(" ");
     final firstChar = names.first[0];
     final lastChar = names.last[0];
@@ -26,12 +29,12 @@ class NextEventPlayer {
 }
 
 void main() {
-  NextEventPlayer makeSut(String name) =>
-      NextEventPlayer(id: "", name: name, isConfirmed: true);
+  String initialsOf(String name) =>
+      NextEventPlayer(id: "", name: name, isConfirmed: true).initials;
 
   test("should return the first letter of the first and last names", () {
-    expect(makeSut("John Doe").getInitials(), "JD");
-    expect(makeSut("Kauan Curbani").getInitials(), "KC");
-    expect(makeSut("João Paulo da Silva").getInitials(), "JS");
+    expect(initialsOf("John Doe"), "JD");
+    expect(initialsOf("Kauan Curbani"), "KC");
+    expect(initialsOf("João Paulo da Silva"), "JS");
   });
 }
