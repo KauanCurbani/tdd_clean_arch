@@ -24,20 +24,10 @@ class HttpClient {
     await client.get(uri, headers: allHeaders);
   }
 
-  Uri _buildUri({
-    required String url,
-    Map<String, String?>? params,
-    Map<String, String>? qs,
-  }) {
-    params?.forEach((key, value) {
-      url = url.replaceFirst(":$key", value ?? "");
-    });
+  Uri _buildUri({required String url, Map<String, String?>? params, Map<String, String>? qs}) {
+    params?.forEach((k, v) => url = url.replaceFirst(":$k", v ?? ""));
     url = url.removeSuffix("/");
-
-    if (qs != null) {
-      url += "?${qs.entries.map((e) => "${e.key}=${e.value}").join("&")}";
-    }
-
+    if (qs != null) url += "?${qs.entries.map((e) => "${e.key}=${e.value}").join("&")}";
     return Uri.parse(url);
   }
 }
@@ -56,8 +46,7 @@ void main() {
     sut = HttpClient(client: client);
     url = Faker().internet.httpUrl();
 
-    when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response("", 200));
+    when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("", 200));
   });
 
   setUpAll(() => {registerFallbackValue(FakeUri())});
@@ -70,8 +59,7 @@ void main() {
 
     test("should request with correct url", () async {
       await sut.get(url);
-      verify(() => client.get(Uri.parse(url), headers: any(named: "headers")))
-          .called(1);
+      verify(() => client.get(Uri.parse(url), headers: any(named: "headers"))).called(1);
     });
 
     test("should request with default headers", () async {
