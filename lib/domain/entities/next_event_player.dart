@@ -3,7 +3,7 @@ final class NextEventPlayer {
   final String name;
   final String? photo;
   final String? position;
-  final bool isConfirmed;
+  final bool? isConfirmed;
   final DateTime? confirmationDate;
   final String initials;
 
