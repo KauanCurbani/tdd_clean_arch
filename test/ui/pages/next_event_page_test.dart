@@ -1,30 +1,9 @@
+import 'package:advanced_flutter/presentation/presenters/next_event_presenter.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:rxdart/rxdart.dart';
-
-final class NextEventViewModel {
-  final List<NextEventPlayerViewModel> goalkeepers;
-  final List<NextEventPlayerViewModel> players;
-  final List<NextEventPlayerViewModel> out;
-  final List<NextEventPlayerViewModel> doubt;
-
-  const NextEventViewModel({
-    this.goalkeepers = const [],
-    this.players = const [],
-    this.out = const [],
-    this.doubt = const [],
-  });
-}
-
-final class NextEventPlayerViewModel {
-  final String name;
-
-  const NextEventPlayerViewModel({
-    required this.name,
-  });
-}
 
 final class NextEventPage extends StatefulWidget {
   final NextEventPresenter presenter;
@@ -60,25 +39,10 @@ class _NextEventPageState extends State<NextEventPage> {
           return ListView(
             children: [
               if (viewModel.goalkeepers.isNotEmpty)
-                ListSection(
-                  title: "DENTRO - GOLEIROS",
-                  items: viewModel.goalkeepers,
-                ),
-              if (viewModel.players.isNotEmpty)
-                ListSection(
-                  title: "DENTRO - JOGADORES",
-                  items: viewModel.players,
-                ),
-              if (viewModel.out.isNotEmpty)
-                ListSection(
-                  title: "FORA",
-                  items: viewModel.out,
-                ),
-              if (viewModel.doubt.isNotEmpty)
-                ListSection(
-                  title: "DÚVIDA",
-                  items: viewModel.doubt,
-                ),
+                ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
+              if (viewModel.players.isNotEmpty) ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
+              if (viewModel.out.isNotEmpty) ListSection(title: "FORA", items: viewModel.out),
+              if (viewModel.doubt.isNotEmpty) ListSection(title: "DÚVIDA", items: viewModel.doubt),
             ],
           );
         },
@@ -102,11 +66,6 @@ final class ListSection extends StatelessWidget {
       ],
     );
   }
-}
-
-abstract class NextEventPresenter {
-  void load(String groupId);
-  Stream<NextEventViewModel> get nextEventStream;
 }
 
 final class NextEventPresenterMock with Mock implements NextEventPresenter {}
