@@ -1,3 +1,4 @@
+import 'package:dartx/dartx_io.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
@@ -12,29 +13,31 @@ class HttpClient {
 
   HttpClient({required this.client});
 
-  Future<void> get(String url,
-      {Map<String, String>? headers,
-      Map<String, String?>? params,
-      Map<String, String>? qs}) async {
+  Future<void> get(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, String?>? params,
+    Map<String, String>? qs,
+  }) async {
     var allHeaders = (headers ?? {})..addAll(_defaultHeaders);
     Uri uri = _buildUri(url: url, params: params, qs: qs);
     await client.get(uri, headers: allHeaders);
   }
 
-  Uri _buildUri(
-      {required String url,
-      Map<String, String?>? params,
-      Map<String, String>? qs}) {
-    if (params != null) {
-      params.forEach(
-        (key, value) => url = url.replaceFirst(":$key", value ?? ""),
-      );
-    }
+  Uri _buildUri({
+    required String url,
+    Map<String, String?>? params,
+    Map<String, String>? qs,
+  }) {
+    params?.forEach((key, value) {
+      url = url.replaceFirst(":$key", value ?? "");
+    });
+    url = url.removeSuffix("/");
+
     if (qs != null) {
       url += "?${qs.entries.map((e) => "${e.key}=${e.value}").join("&")}";
     }
 
-    if (url.endsWith("/")) url = url.substring(0, url.length - 1);
     return Uri.parse(url);
   }
 }

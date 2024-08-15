@@ -18,6 +18,7 @@ dependencies:
   build_runner: ^2.4.12
   http: ^1.2.2
   mocktail: ^1.0.4
+  dartx: ^1.2.0
 
 dev_dependencies:
   flutter_test:
