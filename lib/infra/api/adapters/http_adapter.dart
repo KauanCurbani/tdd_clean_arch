@@ -22,10 +22,19 @@ class HttpAdapter implements HttpGetClient {
     Map<String, String?>? params,
     Map<String, String>? qs,
   }) async {
-    var allHeaders = (headers ?? {})..addAll(_defaultHeaders);
-    Uri uri = _buildUri(url: url, params: params, qs: qs);
-    var response = await client.get(uri, headers: allHeaders);
+    var response = await client.get(
+      _buildUri(url: url, params: params, qs: qs),
+      headers: _buildHeaders(headers),
+    );
 
+    return handleResponse<T>(response);
+  }
+
+  Map<String, String> _buildHeaders(Map<String, String>? headers) {
+    return (headers ?? {})..addAll(_defaultHeaders);
+  }
+
+  T handleResponse<T>(Response response) {
     switch (response.statusCode) {
       case 200:
         if (response.body.isEmpty) throw DomainError.unexpected;
