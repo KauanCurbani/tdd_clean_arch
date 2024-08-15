@@ -1,8 +1,10 @@
+import 'package:advanced_flutter/infra/types/json.dart';
+
 abstract interface class HttpGetClient {
   Future<T> get<T>(
     String url, {
-    Map<String, String>? headers,
-    Map<String, String?>? params,
-    Map<String, String>? qs,
+    Json? headers,
+    Json? params,
+    Json? qs,
   });
 }

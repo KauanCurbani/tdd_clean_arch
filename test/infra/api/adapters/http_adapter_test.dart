@@ -211,5 +211,14 @@ void main() {
             headers: any(named: "headers"),
           )).called(1);
     });
+
+    test("should convert queryString values to String", () async {
+      await sut.get(url, qs: {"key": 1, "bool": true, "null": null});
+
+      verify(() => client.get(
+            Uri.parse("$url?key=1&bool=true&null=null"),
+            headers: any(named: "headers"),
+          )).called(1);
+    });
   });
 }
