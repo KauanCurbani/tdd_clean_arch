@@ -14,8 +14,8 @@ final class HttpAdapter implements HttpGetClient {
   @override
   Future<T> get<T>(
     String url, {
-    Map<String, String>? headers,
-    Map<String, String?>? params,
+    Json? headers,
+    Json? params,
     Map<String, String>? qs,
   }) async {
     var response = await client.get(
@@ -26,12 +26,10 @@ final class HttpAdapter implements HttpGetClient {
     return handleResponse<T>(response);
   }
 
-  Map<String, String> _buildHeaders(Map<String, String>? headers) {
-    const Map<String, String> defaultHeaders = {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    };
-    return (headers ?? {})..addAll(defaultHeaders);
+  Map<String, String> _buildHeaders(Json? headers) {
+    Map<String, String> defaultHeaders = {"Content-Type": "application/json", "Accept": "application/json"};
+    defaultHeaders.addAll({for (final key in (headers ?? {}).keys) key: headers![key].toString()});
+    return defaultHeaders;
   }
 
   T handleResponse<T>(Response response) {
@@ -47,8 +45,8 @@ final class HttpAdapter implements HttpGetClient {
     }
   }
 
-  Uri _buildUri({required String url, Map<String, String?>? params, Map<String, String>? qs}) {
-    params?.forEach((k, v) => url = url.replaceFirst(":$k", v ?? ""));
+  Uri _buildUri({required String url, Json? params, Map<String, String>? qs}) {
+    params?.forEach((k, v) => url = url.replaceFirst(":$k", v?.toString() ?? ""));
     url = url.removeSuffix("/");
     if (qs != null) url += "?${qs.entries.map((e) => "${e.key}=${e.value}").join("&")}";
     return Uri.parse(url);

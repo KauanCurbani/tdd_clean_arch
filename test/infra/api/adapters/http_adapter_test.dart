@@ -185,5 +185,31 @@ void main() {
       final future = sut.get(url);
       expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
+
+    test("should convert headers value to String", () async {
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response('{"key1": "value"}', 200));
+
+      await sut.get<Json>(url, headers: {"key": 1, "bool": true, "null": null});
+
+      verify(() => client.get(any(), headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "key": "1",
+            "bool": "true",
+            "null": "null",
+          })).called(1);
+    });
+
+    test("should convert params to String", () async {
+      url = "https://any-url.com/api/:id/:key2/:null";
+
+      await sut.get(url, params: {"id": 1, "key2": true, "null": null});
+
+      verify(() => client.get(
+            Uri.parse("https://any-url.com/api/1/true"),
+            headers: any(named: "headers"),
+          )).called(1);
+    });
   });
 }
