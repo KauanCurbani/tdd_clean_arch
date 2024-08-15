@@ -6,9 +6,11 @@ import 'package:rxdart/rxdart.dart';
 
 final class NextEventViewModel {
   final List<NextEventPlayerViewModel> goalkeepers;
+  final List<NextEventPlayerViewModel> players;
 
   const NextEventViewModel({
     this.goalkeepers = const [],
+    this.players = const [],
   });
 }
 
@@ -58,6 +60,11 @@ class _NextEventPageState extends State<NextEventPage> {
                   title: "DENTRO - GOLEIROS",
                   items: viewModel.goalkeepers,
                 ),
+              if (viewModel.players.isNotEmpty)
+                ListSection(
+                  title: "DENTRO - JOGADORES",
+                  items: viewModel.players,
+                ),
             ],
           );
         },
@@ -96,8 +103,14 @@ void main() {
   late String groupId;
   late BehaviorSubject<NextEventViewModel> nextEventSubject;
 
-  void emitNextEventWith({List<NextEventPlayerViewModel> goalkeepers = const []}) {
-    nextEventSubject.add(NextEventViewModel(goalkeepers: goalkeepers));
+  void emitNextEventWith({
+    List<NextEventPlayerViewModel> goalkeepers = const [],
+    List<NextEventPlayerViewModel> players = const [],
+  }) {
+    nextEventSubject.add(NextEventViewModel(
+      goalkeepers: goalkeepers,
+      players: players,
+    ));
   }
 
   Widget makeSut() {
@@ -155,6 +168,23 @@ void main() {
     );
     await tester.pump();
     expect(find.text("DENTRO - GOLEIROS"), findsOneWidget);
+    expect(find.text("3"), findsOneWidget);
+    expect(find.text("Rodrigo"), findsOneWidget);
+    expect(find.text("Rafael"), findsOneWidget);
+    expect(find.text("Kauan"), findsOneWidget);
+  });
+
+  testWidgets("should present players section", (tester) async {
+    await tester.pumpWidget(sut);
+    emitNextEventWith(
+      players: const [
+        NextEventPlayerViewModel(name: "Rodrigo"),
+        NextEventPlayerViewModel(name: "Rafael"),
+        NextEventPlayerViewModel(name: "Kauan"),
+      ],
+    );
+    await tester.pump();
+    expect(find.text("DENTRO - JOGADORES"), findsOneWidget);
     expect(find.text("3"), findsOneWidget);
     expect(find.text("Rodrigo"), findsOneWidget);
     expect(find.text("Rafael"), findsOneWidget);
