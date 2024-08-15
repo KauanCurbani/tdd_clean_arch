@@ -1,4 +1,4 @@
-abstract class HttpGetClient {
+abstract interface class HttpGetClient {
   Future<T> get<T>(
     String url, {
     Map<String, String>? headers,

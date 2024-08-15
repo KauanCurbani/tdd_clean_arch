@@ -6,14 +6,10 @@ import 'package:advanced_flutter/infra/types/json.dart';
 import 'package:dartx/dartx_io.dart';
 import 'package:http/http.dart';
 
-class HttpAdapter implements HttpGetClient {
+final class HttpAdapter implements HttpGetClient {
   final Client client;
-  final Map<String, String> _defaultHeaders = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  };
 
-  HttpAdapter({required this.client});
+  const HttpAdapter({required this.client});
 
   @override
   Future<T> get<T>(
@@ -31,7 +27,11 @@ class HttpAdapter implements HttpGetClient {
   }
 
   Map<String, String> _buildHeaders(Map<String, String>? headers) {
-    return (headers ?? {})..addAll(_defaultHeaders);
+    const Map<String, String> defaultHeaders = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
+    return (headers ?? {})..addAll(defaultHeaders);
   }
 
   T handleResponse<T>(Response response) {

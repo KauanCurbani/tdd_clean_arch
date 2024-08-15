@@ -4,12 +4,10 @@ import 'package:advanced_flutter/domain/repositories/load_next_event_repository.
 import 'package:advanced_flutter/domain/usecases/next_event_loader.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-import 'next_event_loader_test.mocks.dart';
+class LoadNextEventRepoMock with Mock implements LoadNextEventRepository {}
 
-@GenerateMocks([LoadNextEventRepository])
 void main() {
   late LoadNextEventRepository repo;
   late NextEventLoader sut;
@@ -25,16 +23,16 @@ void main() {
   );
 
   setUp(() {
-    repo = MockLoadNextEventRepository();
+    repo = LoadNextEventRepoMock();
     sut = NextEventLoader(repository: repo);
     groupId = Faker().guid.guid();
-    when(repo.loadNextEvent(groupId: groupId))
-        .thenAnswer((_) async => defaultEvent);
+
+    when(() => repo.loadNextEvent(groupId: any(named: "groupId"))).thenAnswer((_) async => defaultEvent);
   });
 
   test("should load event data from a repository", () async {
     await sut(groupId: groupId);
-    verify(repo.loadNextEvent(groupId: groupId)).called(1);
+    verify(() => repo.loadNextEvent(groupId: groupId)).called(1);
   });
 
   test("should return event data on success", () async {
@@ -60,7 +58,7 @@ void main() {
   });
 
   test("should rethrow on error", () {
-    when(repo.loadNextEvent(groupId: groupId)).thenThrow(Exception());
+    when(() => repo.loadNextEvent(groupId: any(named: "groupId"))).thenThrow(Exception());
     final future = sut(groupId: groupId);
     expect(future, throwsA(isA<Exception>()));
   });
