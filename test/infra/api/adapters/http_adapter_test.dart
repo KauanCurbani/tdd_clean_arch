@@ -1,4 +1,4 @@
-import 'package:advanced_flutter/domain/entities/domain_error.dart';
+import 'package:advanced_flutter/domain/entities/errors.dart';
 import 'package:advanced_flutter/infra/api/adapters/http_adapter.dart';
 import 'package:advanced_flutter/infra/types/json.dart';
 import 'package:faker/faker.dart';
@@ -114,33 +114,33 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response("Bad Request", 400));
       final future = sut.get(url);
-      expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
 
     test("should SessionExpired on 401 error", () async {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response("Unauthorized", 401));
       final future = sut.get(url);
-      expect(future, throwsA(DomainError.sessionExpired));
+      expect(future, throwsA(const TypeMatcher<SessionExpiredError>()));
     });
 
     test("should UnexpectedError on 403 error", () async {
       when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("Forbidden", 403));
       final future = sut.get(url);
-      expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
 
     test("should UnexpectedError on 404 error", () async {
       when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("Not Found", 404));
       final future = sut.get(url);
-      expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
 
     test("should UnexpectedError on 500 error", () async {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response("Internal Server Error", 500));
       final future = sut.get(url);
-      expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
 
     test("should return a Map", () async {
@@ -183,7 +183,7 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("", 200));
 
       final future = sut.get(url);
-      expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
   });
 }
