@@ -1,4 +1,5 @@
 import 'package:advanced_flutter/presentation/presenters/next_event_presenter.dart';
+import 'package:advanced_flutter/ui/components/player_position.dart';
 import 'package:flutter/material.dart';
 
 final class NextEventPage extends StatefulWidget {
@@ -58,8 +59,23 @@ final class ListSection extends StatelessWidget {
       children: [
         Text(title),
         Text(items.length.toString()),
-        ...items.map((player) => Text(player.name)),
+        ...items.map((player) => Player(player: player)),
       ],
+    );
+  }
+}
+
+class Player extends StatelessWidget {
+  final NextEventPlayerViewModel player;
+  const Player({super.key, required this.player});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+        children: [
+          Text(player.name),
+          PlayerPosition(position: player.position),
+        ],
     );
   }
 }
