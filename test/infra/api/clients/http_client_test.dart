@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:advanced_flutter/domain/entities/domain_error.dart';
+import 'package:advanced_flutter/infra/types/json.dart';
 import 'package:dartx/dartx_io.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +29,8 @@ class HttpClient {
 
     switch (response.statusCode) {
       case 200:
-        return jsonDecode(response.body);
+        var data = jsonDecode(response.body);
+        return (T == JsonArr) ? data.map<Json>((e) => e as Json).toList() : data;
       case 401:
         throw DomainError.sessionExpired;
       default:
@@ -58,7 +60,8 @@ void main() {
     sut = HttpClient(client: client);
     url = Faker().internet.httpUrl();
 
-    when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("", 200));
+    when(() => client.get(any(), headers: any(named: "headers")))
+        .thenAnswer((_) async => Response('{"test": "test"}', 200));
   });
 
   setUpAll(() => {registerFallbackValue(FakeUri())});
@@ -184,10 +187,24 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response('{"key": "value"}', 200));
 
-      final response = await sut.get(url);
+      final response = await sut.get<Json>(url);
 
       expect(response, isA<Map>());
       expect(response["key"], "value");
+    });
+
+    test("should return a List<Map>", () async {
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response('[{"key": "value"}, {"key2": "value2"}]', 200));
+
+      final response = await sut.get<JsonArr>(url);
+
+      expect(response, isA<List>());
+      expect(response.first, isA<Map>());
+      expect(response.first["key"], "value");
+
+      expect(response.last, isA<Map>());
+      expect(response.last["key2"], "value2");
     });
   });
 }
