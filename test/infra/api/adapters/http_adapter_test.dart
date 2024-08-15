@@ -1,51 +1,10 @@
-import 'dart:convert';
-
 import 'package:advanced_flutter/domain/entities/domain_error.dart';
+import 'package:advanced_flutter/infra/api/adapters/http_adapter.dart';
 import 'package:advanced_flutter/infra/types/json.dart';
-import 'package:dartx/dartx_io.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
-
-class HttpClient {
-  final Client client;
-  final Map<String, String> _defaultHeaders = {
-    "Content-Type": "application/json",
-    "Accept": "application/json",
-  };
-
-  HttpClient({required this.client});
-
-  Future<T> get<T>(
-    String url, {
-    Map<String, String>? headers,
-    Map<String, String?>? params,
-    Map<String, String>? qs,
-  }) async {
-    var allHeaders = (headers ?? {})..addAll(_defaultHeaders);
-    Uri uri = _buildUri(url: url, params: params, qs: qs);
-    var response = await client.get(uri, headers: allHeaders);
-
-    switch (response.statusCode) {
-      case 200:
-        if (response.body.isEmpty) throw DomainError.unexpected;
-        var data = jsonDecode(response.body);
-        return (T == JsonArr) ? data.map<Json>((e) => e as Json).toList() : data;
-      case 401:
-        throw DomainError.sessionExpired;
-      default:
-        throw DomainError.unexpected;
-    }
-  }
-
-  Uri _buildUri({required String url, Map<String, String?>? params, Map<String, String>? qs}) {
-    params?.forEach((k, v) => url = url.replaceFirst(":$k", v ?? ""));
-    url = url.removeSuffix("/");
-    if (qs != null) url += "?${qs.entries.map((e) => "${e.key}=${e.value}").join("&")}";
-    return Uri.parse(url);
-  }
-}
 
 class MockClient extends Mock implements Client {}
 
@@ -53,12 +12,12 @@ class FakeUri extends Fake implements Uri {}
 
 void main() {
   late Client client;
-  late HttpClient sut;
+  late HttpAdapter sut;
   late String url;
 
   setUp(() {
     client = MockClient();
-    sut = HttpClient(client: client);
+    sut = HttpAdapter(client: client);
     url = Faker().internet.httpUrl();
 
     when(() => client.get(any(), headers: any(named: "headers")))
@@ -221,11 +180,10 @@ void main() {
     });
 
     test("should throw Unexpected error if response is empty", () async {
-        when(() => client.get(any(), headers: any(named: "headers")))
-            .thenAnswer((_) async => Response("", 200));
+      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("", 200));
 
-        final future = sut.get(url);
-        expect(future, throwsA(DomainError.unexpected));
+      final future = sut.get(url);
+      expect(future, throwsA(DomainError.unexpected));
     });
   });
 }

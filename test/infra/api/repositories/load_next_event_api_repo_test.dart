@@ -40,23 +40,20 @@ void main() {
     httpClient = HttpGetClientMock();
     sut = LoadNextEventApiRepository(httpClient: httpClient, url: url);
 
-    when(() => httpClient.get<Json>(
-        url: any(named: "url"),
-        params: any(named: "params"))).thenAnswer((_) async {
+    when(() => httpClient.get<Json>(any(), params: any(named: "params"))).thenAnswer((_) async {
       return jsonResponse;
     });
   });
 
   test("should call httpClient with correct url", () async {
     await sut.loadNextEvent(groupId: groupId);
-    verify(() => httpClient.get<Json>(url: url, params: any(named: "params")))
-        .called(1);
+    verify(() => httpClient.get<Json>(url, params: any(named: "params"))).called(1);
   });
 
   test("should call httpClient with correct params", () async {
     await sut.loadNextEvent(groupId: groupId);
     verify(() => httpClient.get<Json>(
-          url: any(named: "url"),
+          any(),
           params: {"groupId": groupId},
         )).called(1);
   });
@@ -74,21 +71,17 @@ void main() {
 
     expect(event.players[0].id, jsonResponse["players"][0]["id"]);
     expect(event.players[0].name, jsonResponse["players"][0]["name"]);
-    expect(event.players[0].isConfirmed,
-        jsonResponse["players"][0]["isConfirmed"]);
+    expect(event.players[0].isConfirmed, jsonResponse["players"][0]["isConfirmed"]);
     expect(event.players[0].initials, isNotEmpty);
 
     expect(event.players[1].id, jsonResponse["players"][1]["id"]);
     expect(event.players[1].name, jsonResponse["players"][1]["name"]);
-    expect(event.players[1].isConfirmed,
-        jsonResponse["players"][1]["isConfirmed"]);
+    expect(event.players[1].isConfirmed, jsonResponse["players"][1]["isConfirmed"]);
     expect(event.players[1].initials, isNotEmpty);
   });
 
   test("should rethrow on error", () {
-    when(() => httpClient.get<Json>(
-        url: any(named: "url"),
-        params: any(named: "params"))).thenThrow(Exception());
+    when(() => httpClient.get<Json>(any(), params: any(named: "params"))).thenThrow(Exception());
     final future = sut.loadNextEvent(groupId: groupId);
     expect(future, throwsA(isA<Exception>()));
   });
