@@ -12,9 +12,23 @@ class HttpClient {
 
   HttpClient({required this.client});
 
-  Future<void> get(String url, {Map<String, String>? headers}) async {
+  Future<void> get(String url,
+      {Map<String, String>? headers, Map<String, String?>? params}) async {
     var allHeaders = (headers ?? {})..addAll(_defaultHeaders);
-    await client.get(Uri.parse(url), headers: allHeaders);
+    Uri uri = _buildUri(url: url, params: params);
+    await client.get(uri, headers: allHeaders);
+  }
+
+  Uri _buildUri({required String url, Map<String, String?>? params}) {
+    if (params != null) {
+      params.forEach(
+        (key, value) => url = url.replaceFirst(":$key", value ?? ""),
+      );
+    }
+
+    if (url.endsWith("/")) url = url.substring(0, url.length - 1);
+
+    return Uri.parse(url);
   }
 }
 
@@ -68,6 +82,33 @@ void main() {
             "Accept": "application/json",
             "Authorization": "Bearer token",
           })).called(1);
+    });
+
+    test("should request with correct params", () async {
+      url = "https://any-url.com/api/:id/:key2";
+
+      await sut.get(url, params: {"id": "value", "key2": "value2"});
+
+      verify(() => client.get(Uri.parse("https://any-url.com/api/value/value2"),
+          headers: any(named: "headers"))).called(1);
+    });
+
+    test("should request with optional params", () async {
+      url = "https://any-url.com/api/:id/:key2";
+
+      await sut.get(url, params: {"id": "value", "key2": null});
+
+      verify(() => client.get(Uri.parse("https://any-url.com/api/value"),
+          headers: any(named: "headers"))).called(1);
+    });
+
+    test("should request with invalid params", () async {
+      url = "https://any-url.com/api/:id/:key2";
+
+      await sut.get(url, params: {"id": "value"});
+
+      verify(() => client.get(Uri.parse("https://any-url.com/api/value/:key2"),
+          headers: any(named: "headers"))).called(1);
     });
   });
 }
