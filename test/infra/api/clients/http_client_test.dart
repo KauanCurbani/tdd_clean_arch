@@ -206,5 +206,17 @@ void main() {
       expect(response.last, isA<Map>());
       expect(response.last["key2"], "value2");
     });
+
+    test("should return a Map with List inside", () async {
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response('{"key": ["value", "value2"]}', 200));
+
+      final response = await sut.get<Json>(url);
+
+      expect(response, isA<Map>());
+      expect(response["key"], isA<List>());
+      expect(response["key"].first, "value");
+      expect(response["key"].last, "value2");
+    });
   });
 }
