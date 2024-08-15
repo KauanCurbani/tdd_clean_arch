@@ -1,3 +1,4 @@
+import 'package:advanced_flutter/domain/entities/domain_error.dart';
 import 'package:dartx/dartx_io.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +22,16 @@ class HttpClient {
   }) async {
     var allHeaders = (headers ?? {})..addAll(_defaultHeaders);
     Uri uri = _buildUri(url: url, params: params, qs: qs);
-    await client.get(uri, headers: allHeaders);
+    var response = await client.get(uri, headers: allHeaders);
+
+    switch (response.statusCode) {
+      case 200:
+        break;
+      case 401:
+        throw DomainError.sessionExpired;
+      default:
+        throw DomainError.unexpected;
+    }
   }
 
   Uri _buildUri({required String url, Map<String, String?>? params, Map<String, String>? qs}) {
@@ -133,6 +143,39 @@ void main() {
             Uri.parse("https://any-url.com/api/value?key2=value2"),
             headers: any(named: "headers"),
           )).called(1);
+    });
+
+    test("should UnexpectedError on 400 error", () async {
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response("Bad Request", 400));
+      final future = sut.get(url);
+      expect(future, throwsA(DomainError.unexpected));
+    });
+
+    test("should SessionExpired on 401 error", () async {
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response("Unauthorized", 401));
+      final future = sut.get(url);
+      expect(future, throwsA(DomainError.sessionExpired));
+    });
+
+    test("should UnexpectedError on 403 error", () async {
+      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("Forbidden", 403));
+      final future = sut.get(url);
+      expect(future, throwsA(DomainError.unexpected));
+    });
+
+    test("should UnexpectedError on 404 error", () async {
+      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("Not Found", 404));
+      final future = sut.get(url);
+      expect(future, throwsA(DomainError.unexpected));
+    });
+
+    test("should UnexpectedError on 500 error", () async {
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response("Internal Server Error", 500));
+      final future = sut.get(url);
+      expect(future, throwsA(DomainError.unexpected));
     });
   });
 }

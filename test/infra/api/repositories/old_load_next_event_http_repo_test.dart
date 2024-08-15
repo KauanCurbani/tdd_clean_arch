@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:advanced_flutter/domain/entities/domain_error.dart';
 import 'package:advanced_flutter/domain/entities/next_event.dart';
 import 'package:advanced_flutter/domain/entities/next_event_player.dart';
 import 'package:advanced_flutter/infra/api/repositories/load_next_event_http_repo.dart';
@@ -94,38 +93,5 @@ void main() {
     expect(event.players[1].position, isNull);
   });
 
-  test("should UnexpectedError on 400 error", () async {
-    when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response("Bad Request", 400));
-    final future = sut.loadNextEvent(groupId: groupId);
-    expect(future, throwsA(DomainError.unexpected));
-  });
 
-  test("should SessionExpired on 401 error", () async {
-    when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response("Unauthorized", 401));
-    final future = sut.loadNextEvent(groupId: groupId);
-    expect(future, throwsA(DomainError.sessionExpired));
-  });
-
-  test("should UnexpectedError on 403 error", () async {
-    when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response("Forbidden", 403));
-    final future = sut.loadNextEvent(groupId: groupId);
-    expect(future, throwsA(DomainError.unexpected));
-  });
-
-  test("should UnexpectedError on 404 error", () async {
-    when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response("Not Found", 404));
-    final future = sut.loadNextEvent(groupId: groupId);
-    expect(future, throwsA(DomainError.unexpected));
-  });
-
-  test("should UnexpectedError on 500 error", () async {
-    when(() => client.get(any(), headers: any(named: "headers")))
-        .thenAnswer((_) async => Response("Internal Server Error", 500));
-    final future = sut.loadNextEvent(groupId: groupId);
-    expect(future, throwsA(DomainError.unexpected));
-  });
 }
