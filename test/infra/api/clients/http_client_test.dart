@@ -17,7 +17,7 @@ class HttpClient {
 
   HttpClient({required this.client});
 
-  Future<T> get<T>(
+  Future<T?> get<T>(
     String url, {
     Map<String, String>? headers,
     Map<String, String?>? params,
@@ -29,6 +29,8 @@ class HttpClient {
 
     switch (response.statusCode) {
       case 200:
+        if (response.body.isEmpty) return null;
+
         var data = jsonDecode(response.body);
         return (T == JsonArr) ? data.map<Json>((e) => e as Json).toList() : data;
       case 401:
@@ -190,7 +192,7 @@ void main() {
       final response = await sut.get<Json>(url);
 
       expect(response, isA<Map>());
-      expect(response["key"], "value");
+      expect(response?["key"], "value");
     });
 
     test("should return a List<Map>", () async {
@@ -200,11 +202,11 @@ void main() {
       final response = await sut.get<JsonArr>(url);
 
       expect(response, isA<List>());
-      expect(response.first, isA<Map>());
-      expect(response.first["key"], "value");
+      expect(response?.first, isA<Map>());
+      expect(response?.first["key"], "value");
 
-      expect(response.last, isA<Map>());
-      expect(response.last["key2"], "value2");
+      expect(response?.last, isA<Map>());
+      expect(response?.last["key2"], "value2");
     });
 
     test("should return a Map with List inside", () async {
@@ -214,9 +216,17 @@ void main() {
       final response = await sut.get<Json>(url);
 
       expect(response, isA<Map>());
-      expect(response["key"], isA<List>());
-      expect(response["key"].first, "value");
-      expect(response["key"].last, "value2");
+      expect(response?["key"], isA<List>());
+      expect(response?["key"].first, "value");
+      expect(response?["key"].last, "value2");
+    });
+
+    test("should return null on 200 with empty response", () async {
+      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response('', 200));
+
+      final response = await sut.get<Json>(url);
+
+      expect(response, isNull);
     });
   });
 }
