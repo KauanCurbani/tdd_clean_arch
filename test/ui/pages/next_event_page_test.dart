@@ -86,5 +86,12 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
+  testWidgets("should hide spinner on loading error", (WidgetTester tester) async {
+    await tester.pumpWidget(sut);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    nextEventSubject.addError(Exception());
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+  });
   
 }
