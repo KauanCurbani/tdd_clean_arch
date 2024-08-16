@@ -5,19 +5,22 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets("should present green status", (tester) async {
     await tester.pumpWidget(const MaterialApp(home: PlayerStatus(isConfirmed: true)));
-    final decoration = tester.firstWidget<Container>(find.byType(Container)).decoration as BoxDecoration;
-    expect(decoration.color, Colors.teal);
+    final decoration =
+        tester.firstWidget<Container>(find.byType(Container)).decoration as BoxDecoration;
+    expect(decoration.color, Colors.teal.withAlpha(50));
   });
 
   testWidgets("should present red status", (tester) async {
     await tester.pumpWidget(const MaterialApp(home: PlayerStatus(isConfirmed: false)));
-    final decoration = tester.firstWidget<Container>(find.byType(Container)).decoration as BoxDecoration;
-    expect(decoration.color, Colors.pink);
+    final decoration =
+        tester.firstWidget<Container>(find.byType(Container)).decoration as BoxDecoration;
+    expect(decoration.color, Colors.pink.withAlpha(50));
   });
 
   testWidgets("should present grey status", (tester) async {
     await tester.pumpWidget(const MaterialApp(home: PlayerStatus(isConfirmed: null)));
-    final decoration = tester.firstWidget<Container>(find.byType(Container)).decoration as BoxDecoration;
-    expect(decoration.color, Colors.blueGrey);
+    final decoration =
+        tester.firstWidget<Container>(find.byType(Container)).decoration as BoxDecoration;
+    expect(decoration.color, Colors.blueGrey.withAlpha(50));
   });
 }
