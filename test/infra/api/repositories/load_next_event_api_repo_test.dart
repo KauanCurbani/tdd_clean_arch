@@ -40,19 +40,19 @@ void main() {
     httpClient = HttpGetClientMock();
     sut = LoadNextEventApiRepository(httpClient: httpClient, url: url);
 
-    when(() => httpClient.get<Json>(any(), params: any(named: "params"))).thenAnswer((_) async {
+    when(() => httpClient.get(any(), params: any(named: "params"))).thenAnswer((_) async {
       return jsonResponse;
     });
   });
 
   test("should call httpClient with correct url", () async {
     await sut.loadNextEvent(groupId: groupId);
-    verify(() => httpClient.get<Json>(url, params: any(named: "params"))).called(1);
+    verify(() => httpClient.get(url, params: any(named: "params"))).called(1);
   });
 
   test("should call httpClient with correct params", () async {
     await sut.loadNextEvent(groupId: groupId);
-    verify(() => httpClient.get<Json>(
+    verify(() => httpClient.get(
           any(),
           params: {"groupId": groupId},
         )).called(1);
@@ -81,7 +81,7 @@ void main() {
   });
 
   test("should rethrow on error", () {
-    when(() => httpClient.get<Json>(any(), params: any(named: "params"))).thenThrow(Exception());
+    when(() => httpClient.get(any(), params: any(named: "params"))).thenThrow(Exception());
     final future = sut.loadNextEvent(groupId: groupId);
     expect(future, throwsA(isA<Exception>()));
   });

@@ -1,9 +1,7 @@
-import 'package:advanced_flutter/infra/types/json.dart';
-
 abstract base class Mapper<Entity> {
-  List<Entity> fromListJson(JsonArr json) {
-    return json.map(fromJson).toList();
+  List<Entity> fromListJson(List<dynamic> json) {
+    return json.map<Entity>(fromJson).toList();
   }
 
-  Entity fromJson(Json json);
+  Entity fromJson(dynamic json);
 }

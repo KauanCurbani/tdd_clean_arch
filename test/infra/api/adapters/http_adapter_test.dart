@@ -1,6 +1,5 @@
 import 'package:advanced_flutter/domain/entities/errors.dart';
 import 'package:advanced_flutter/infra/api/adapters/http_adapter.dart';
-import 'package:advanced_flutter/infra/types/json.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
@@ -125,13 +124,15 @@ void main() {
     });
 
     test("should UnexpectedError on 403 error", () async {
-      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("Forbidden", 403));
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response("Forbidden", 403));
       final future = sut.get(url);
       expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
 
     test("should UnexpectedError on 404 error", () async {
-      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("Not Found", 404));
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response("Not Found", 404));
       final future = sut.get(url);
       expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
     });
@@ -147,7 +148,7 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response('{"key": "value"}', 200));
 
-      final response = await sut.get<Json>(url);
+      final response = await sut.get(url);
 
       expect(response, isA<Map>());
       expect(response["key"], "value");
@@ -157,7 +158,7 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response('[{"key": "value"}, {"key2": "value2"}]', 200));
 
-      final response = await sut.get<JsonArr>(url);
+      final response = await sut.get(url);
 
       expect(response, isA<List>());
       expect(response.first, isA<Map>());
@@ -171,7 +172,7 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response('{"key": ["value", "value2"]}', 200));
 
-      final response = await sut.get<Json>(url);
+      final response = await sut.get(url);
 
       expect(response, isA<Map>());
       expect(response["key"], isA<List>());
@@ -180,7 +181,8 @@ void main() {
     });
 
     test("should throw Unexpected error if response is empty", () async {
-      when(() => client.get(any(), headers: any(named: "headers"))).thenAnswer((_) async => Response("", 200));
+      when(() => client.get(any(), headers: any(named: "headers")))
+          .thenAnswer((_) async => Response("", 200));
 
       final future = sut.get(url);
       expect(future, throwsA(const TypeMatcher<UnexpectedError>()));
@@ -190,7 +192,7 @@ void main() {
       when(() => client.get(any(), headers: any(named: "headers")))
           .thenAnswer((_) async => Response('{"key1": "value"}', 200));
 
-      await sut.get<Json>(url, headers: {"key": 1, "bool": true, "null": null});
+      await sut.get(url, headers: {"key": 1, "bool": true, "null": null});
 
       verify(() => client.get(any(), headers: {
             "Content-Type": "application/json",

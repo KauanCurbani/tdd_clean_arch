@@ -12,7 +12,7 @@ final class HttpAdapter implements HttpGetClient {
   const HttpAdapter({required this.client});
 
   @override
-  Future<T> get<T>(
+  Future get(
     String url, {
     Json? headers,
     Json? params,
@@ -23,21 +23,23 @@ final class HttpAdapter implements HttpGetClient {
       headers: _buildHeaders(headers),
     );
 
-    return handleResponse<T>(response);
+    return handleResponse(response);
   }
 
   Map<String, String> _buildHeaders(Json? headers) {
-    Map<String, String> defaultHeaders = {"Content-Type": "application/json", "Accept": "application/json"};
+    Map<String, String> defaultHeaders = {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    };
     defaultHeaders.addAll({for (final key in (headers ?? {}).keys) key: headers![key].toString()});
     return defaultHeaders;
   }
 
-  T handleResponse<T>(Response response) {
+  handleResponse(Response response) {
     switch (response.statusCode) {
       case 200:
         if (response.body.isEmpty) throw UnexpectedError();
-        var data = jsonDecode(response.body);
-        return (T == JsonArr) ? data.map<Json>((e) => e as Json).toList() : data;
+        return jsonDecode(response.body);
       case 401:
         throw SessionExpiredError();
       default:
