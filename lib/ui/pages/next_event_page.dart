@@ -17,7 +17,7 @@ class _NextEventPageState extends State<NextEventPage> {
   @override
   void initState() {
     super.initState();
-    widget.presenter.load(widget.groupId);
+    widget.presenter.load(groupId: widget.groupId);
 
     widget.presenter.isLoadingStream.listen((isLoading) => isLoading ? showLoading() : hideLoading());
   }
@@ -37,7 +37,8 @@ class _NextEventPageState extends State<NextEventPage> {
         children: [
           const Text("Algo errado aconteceu! Tente novamente."),
           ElevatedButton(
-              onPressed: () => widget.presenter.load(widget.groupId, isReload: true), child: const Text("Recarregar"))
+              onPressed: () => widget.presenter.load(groupId: widget.groupId, isReload: true),
+              child: const Text("Recarregar"))
         ],
       );
 
@@ -59,7 +60,7 @@ class _NextEventPageState extends State<NextEventPage> {
           List<NextEventPlayerViewModel> doubt = viewModel.doubt;
 
           return RefreshIndicator(
-            onRefresh: () async => widget.presenter.load(widget.groupId, isReload: true),
+            onRefresh: () async => widget.presenter.load(groupId: widget.groupId, isReload: true),
             child: ListView(
               children: [
                 if (goalkeepers.isNotEmpty) ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),

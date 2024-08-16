@@ -52,15 +52,16 @@ void main() {
     nextEventSubject = BehaviorSubject<NextEventViewModel>();
     isLoadingSubject = BehaviorSubject<bool>();
 
-    when(() => presenterMock.load(any())).thenAnswer((_) async {});
-    when(() => presenterMock.load(any(), isReload: any(named: "isReload"))).thenAnswer((_) async {});
+    when(() => presenterMock.load(groupId: any(named: "groupId"))).thenAnswer((_) async {});
+    when(() => presenterMock.load(groupId: any(named: "groupId"), isReload: any(named: "isReload")))
+        .thenAnswer((_) async {});
     when(() => presenterMock.nextEventStream).thenAnswer((_) => nextEventSubject.stream);
     when(() => presenterMock.isLoadingStream).thenAnswer((_) => isLoadingSubject.stream);
   });
 
   testWidgets("should load event data on page init", (WidgetTester tester) async {
     await tester.pumpWidget(sut);
-    verify(() => presenterMock.load(groupId)).called(1);
+    verify(() => presenterMock.load(groupId: groupId)).called(1);
   });
   testWidgets("should present spinner when data is loading", (WidgetTester tester) async {
     await tester.pumpWidget(sut);
@@ -196,7 +197,7 @@ void main() {
     emitNextEventError();
     await tester.pump();
     await tester.tap(find.text("Recarregar"));
-    verify(() => presenterMock.load(groupId, isReload: true)).called(1);
+    verify(() => presenterMock.load(groupId: groupId, isReload: true)).called(1);
   });
 
   testWidgets("should handle spinner on page busy event", (WidgetTester tester) async {
@@ -218,6 +219,6 @@ void main() {
     await tester.pump();
     await tester.flingFrom(const Offset(50, 100), const Offset(0, 400), 800);
     await tester.pumpAndSettle();
-    verify(() => presenterMock.load(groupId, isReload: true)).called(1);
+    verify(() => presenterMock.load(groupId: groupId, isReload: true)).called(1);
   });
 }

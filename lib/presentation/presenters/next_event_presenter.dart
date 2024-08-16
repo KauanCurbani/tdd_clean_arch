@@ -1,5 +1,5 @@
 abstract class NextEventPresenter {
-  Future<void> load(String groupId, {bool? isReload = false});
+  Future<void> load({required String groupId, bool isReload = false});
   Stream<NextEventViewModel> get nextEventStream;
   Stream<bool> get isLoadingStream;
 }
