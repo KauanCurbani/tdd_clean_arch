@@ -1,4 +1,4 @@
-
+import 'package:awesome_flutter_extensions/awesome_flutter_extensions.dart';
 import 'package:flutter/material.dart';
 
 class PlayerPosition extends StatelessWidget {
@@ -15,6 +15,9 @@ class PlayerPosition extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(buildPositionLabel());
+    return Text(
+      buildPositionLabel(),
+      style: context.textStyles.bodySmall.copyWith(color: context.colors.scheme.primary),
+    );
   }
 }

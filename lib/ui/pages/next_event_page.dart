@@ -2,6 +2,7 @@ import 'package:advanced_flutter/presentation/presenters/next_event_presenter.da
 import 'package:advanced_flutter/ui/components/player_photo.dart';
 import 'package:advanced_flutter/ui/components/player_position.dart';
 import 'package:advanced_flutter/ui/components/player_status.dart';
+import 'package:awesome_flutter_extensions/awesome_flutter_extensions.dart';
 import 'package:flutter/material.dart';
 
 final class NextEventPage extends StatefulWidget {
@@ -19,13 +20,20 @@ class _NextEventPageState extends State<NextEventPage> {
     super.initState();
     widget.presenter.load(groupId: widget.groupId);
 
-    widget.presenter.isLoadingStream.listen((isLoading) => isLoading ? showLoading() : hideLoading());
+    widget.presenter.isLoadingStream
+        .listen((isLoading) => isLoading ? showLoading() : hideLoading());
+  }
+
+  @override
+  void didUpdateWidget(covariant NextEventPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    widget.presenter.load(groupId: widget.groupId, isReload: true);
   }
 
   void showLoading() {
     showDialog(
       context: context,
-      builder: (context) => const CircularProgressIndicator(),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -33,23 +41,28 @@ class _NextEventPageState extends State<NextEventPage> {
     Navigator.of(context).maybePop();
   }
 
-  Widget buildErrorMessage() => Column(
-        children: [
-          const Text("Algo errado aconteceu! Tente novamente."),
-          ElevatedButton(
-              onPressed: () => widget.presenter.load(groupId: widget.groupId, isReload: true),
-              child: const Text("Recarregar"))
-        ],
+  Widget buildErrorMessage() => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Algo errado aconteceu! Tente novamente.", style: context.textStyles.bodyLarge),
+            const SizedBox(height: 16),
+            ElevatedButton(
+                onPressed: () => widget.presenter.load(groupId: widget.groupId, isReload: true),
+                child: Text("Recarregar", style: context.textStyles.labelLarge)),
+          ],
+        ),
       );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text("Próximo Jogo")),
       body: StreamBuilder<NextEventViewModel>(
         stream: widget.presenter.nextEventStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.active) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) return buildErrorMessage();
 
@@ -63,8 +76,10 @@ class _NextEventPageState extends State<NextEventPage> {
             onRefresh: () async => widget.presenter.load(groupId: widget.groupId, isReload: true),
             child: ListView(
               children: [
-                if (goalkeepers.isNotEmpty) ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
-                if (players.isNotEmpty) ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
+                if (goalkeepers.isNotEmpty)
+                  ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
+                if (players.isNotEmpty)
+                  ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
                 if (out.isNotEmpty) ListSection(title: "FORA", items: viewModel.out),
                 if (doubt.isNotEmpty) ListSection(title: "DÚVIDA", items: viewModel.doubt),
               ],
@@ -85,9 +100,27 @@ final class ListSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(title),
-        Text(items.length.toString()),
-        ...items.map((player) => Player(player: player)),
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8, top: 16),
+          child: Row(
+            children: [
+              Expanded(
+                  child: Text(
+                title,
+                style: context.textStyles.titleSmall,
+              )),
+              Text(
+                items.length.toString(),
+                style: context.textStyles.titleSmall,
+              ),
+            ],
+          ),
+        ),
+        const Divider(),
+        ...items.map((player) => Player(player: player)).separatedBy(const Divider(
+              indent: 82,
+            )),
+        const Divider(),
       ],
     );
   }
@@ -99,13 +132,28 @@ class Player extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        PlayerPhoto(initials: player.initials, photo: player.photo),
-        Text(player.name),
-        PlayerPosition(position: player.position),
-        PlayerStatus(isConfirmed: player.isConfirmed),
-      ],
+    return Container(
+      color: context.colors.scheme.surfaceContainer,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          PlayerPhoto(initials: player.initials, photo: player.photo),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  player.name,
+                  style: context.textStyles.labelLarge,
+                ),
+                PlayerPosition(position: player.position),
+              ],
+            ),
+          ),
+          PlayerStatus(isConfirmed: player.confirmationDate != null ? player.isConfirmed : null),
+        ],
+      ),
     );
   }
 }

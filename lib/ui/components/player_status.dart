@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 final class PlayerStatus extends StatelessWidget {
@@ -14,11 +13,21 @@ final class PlayerStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 16,
-      height: 16,
+      width: 22,
+      height: 22,
       decoration: BoxDecoration(
-        color: getColor(),
+        color: getColor().withAlpha(50),
         shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: getColor(),
+            shape: BoxShape.circle,
+          ),
+        ),
       ),
     );
   }

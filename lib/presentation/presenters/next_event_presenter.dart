@@ -24,6 +24,7 @@ final class NextEventPlayerViewModel {
   final String? position;
   final String? photo;
   final bool? isConfirmed;
+  final DateTime? confirmationDate;
 
   const NextEventPlayerViewModel({
     required this.name,
@@ -31,5 +32,6 @@ final class NextEventPlayerViewModel {
     required this.initials,
     this.photo,
     this.isConfirmed,
+    this.confirmationDate,
   });
 }

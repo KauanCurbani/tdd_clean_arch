@@ -66,9 +66,10 @@ final class NextEventRxPresenter implements NextEventPresenter {
 
   NextEventPlayerViewModel _mapPlayer(NextEventPlayer player) => NextEventPlayerViewModel(
         name: player.name,
-        initials: player.name[0],
+        initials: player.initials,
         position: player.position,
         photo: player.photo,
         isConfirmed: player.isConfirmed,
+        confirmationDate: player.confirmationDate,
       );
 }
