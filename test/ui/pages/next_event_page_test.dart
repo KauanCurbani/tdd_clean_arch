@@ -53,6 +53,7 @@ void main() {
     isLoadingSubject = BehaviorSubject<bool>();
 
     when(() => presenterMock.load(any())).thenAnswer((_) async {});
+    when(() => presenterMock.load(any(), isReload: any(named: "isReload"))).thenAnswer((_) async {});
     when(() => presenterMock.nextEventStream).thenAnswer((_) => nextEventSubject.stream);
     when(() => presenterMock.isLoadingStream).thenAnswer((_) => isLoadingSubject.stream);
   });
@@ -195,7 +196,7 @@ void main() {
     emitNextEventError();
     await tester.pump();
     await tester.tap(find.text("Recarregar"));
-    verify(() => presenterMock.reload(groupId)).called(1);
+    verify(() => presenterMock.load(groupId, isReload: true)).called(1);
   });
 
   testWidgets("should handle spinner on page busy event", (WidgetTester tester) async {
@@ -217,6 +218,6 @@ void main() {
     await tester.pump();
     await tester.flingFrom(const Offset(50, 100), const Offset(0, 400), 800);
     await tester.pumpAndSettle();
-    verify(() => presenterMock.reload(groupId)).called(1);
+    verify(() => presenterMock.load(groupId, isReload: true)).called(1);
   });
 }

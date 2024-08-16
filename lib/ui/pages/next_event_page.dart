@@ -36,7 +36,8 @@ class _NextEventPageState extends State<NextEventPage> {
   Widget buildErrorMessage() => Column(
         children: [
           const Text("Algo errado aconteceu! Tente novamente."),
-          ElevatedButton(onPressed: () => widget.presenter.reload(widget.groupId), child: const Text("Recarregar"))
+          ElevatedButton(
+              onPressed: () => widget.presenter.load(widget.groupId, isReload: true), child: const Text("Recarregar"))
         ],
       );
 
@@ -58,7 +59,7 @@ class _NextEventPageState extends State<NextEventPage> {
           List<NextEventPlayerViewModel> doubt = viewModel.doubt;
 
           return RefreshIndicator(
-            onRefresh: () async => widget.presenter.reload(widget.groupId),
+            onRefresh: () async => widget.presenter.load(widget.groupId, isReload: true),
             child: ListView(
               children: [
                 if (goalkeepers.isNotEmpty) ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
