@@ -210,4 +210,13 @@ void main() {
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
+
+  testWidgets("should load event data on pull to refresh", (WidgetTester tester) async {
+    await tester.pumpWidget(sut);
+    emitNextEventWith(goalkeepers: const [NextEventPlayerViewModel(name: "Rodrigo", initials: "R")]);
+    await tester.pump();
+    await tester.flingFrom(const Offset(50, 100), const Offset(0, 400), 800);
+    await tester.pumpAndSettle();
+    verify(() => presenterMock.reload(groupId)).called(1);
+  });
 }

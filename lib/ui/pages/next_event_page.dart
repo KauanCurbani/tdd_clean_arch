@@ -57,13 +57,16 @@ class _NextEventPageState extends State<NextEventPage> {
           List<NextEventPlayerViewModel> out = viewModel.out;
           List<NextEventPlayerViewModel> doubt = viewModel.doubt;
 
-          return ListView(
-            children: [
-              if (goalkeepers.isNotEmpty) ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
-              if (players.isNotEmpty) ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
-              if (out.isNotEmpty) ListSection(title: "FORA", items: viewModel.out),
-              if (doubt.isNotEmpty) ListSection(title: "DÚVIDA", items: viewModel.doubt),
-            ],
+          return RefreshIndicator(
+            onRefresh: () async => widget.presenter.reload(widget.groupId),
+            child: ListView(
+              children: [
+                if (goalkeepers.isNotEmpty) ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
+                if (players.isNotEmpty) ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
+                if (out.isNotEmpty) ListSection(title: "FORA", items: viewModel.out),
+                if (doubt.isNotEmpty) ListSection(title: "DÚVIDA", items: viewModel.doubt),
+              ],
+            ),
           );
         },
       ),
