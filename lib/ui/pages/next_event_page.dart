@@ -18,7 +18,27 @@ class _NextEventPageState extends State<NextEventPage> {
   void initState() {
     super.initState();
     widget.presenter.load(widget.groupId);
+
+    widget.presenter.isLoadingStream.listen((isLoading) => isLoading ? showLoading() : hideLoading());
   }
+
+  void showLoading() {
+    showDialog(
+      context: context,
+      builder: (context) => const CircularProgressIndicator(),
+    );
+  }
+
+  void hideLoading() {
+    Navigator.of(context).maybePop();
+  }
+
+  Widget buildErrorMessage() => Column(
+        children: [
+          const Text("Algo errado aconteceu! Tente novamente."),
+          ElevatedButton(onPressed: () => widget.presenter.reload(widget.groupId), child: const Text("Recarregar"))
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +49,20 @@ class _NextEventPageState extends State<NextEventPage> {
           if (snapshot.connectionState != ConnectionState.active) {
             return const CircularProgressIndicator();
           }
-          if (snapshot.hasError) {
-            return const Text("Erro ao carregar os dados");
-          }
+          if (snapshot.hasError) return buildErrorMessage();
 
           final viewModel = snapshot.data!;
+          List<NextEventPlayerViewModel> goalkeepers = viewModel.goalkeepers;
+          List<NextEventPlayerViewModel> players = viewModel.players;
+          List<NextEventPlayerViewModel> out = viewModel.out;
+          List<NextEventPlayerViewModel> doubt = viewModel.doubt;
 
           return ListView(
             children: [
-              if (viewModel.goalkeepers.isNotEmpty)
-                ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
-              if (viewModel.players.isNotEmpty) ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
-              if (viewModel.out.isNotEmpty) ListSection(title: "FORA", items: viewModel.out),
-              if (viewModel.doubt.isNotEmpty) ListSection(title: "DÚVIDA", items: viewModel.doubt),
+              if (goalkeepers.isNotEmpty) ListSection(title: "DENTRO - GOLEIROS", items: viewModel.goalkeepers),
+              if (players.isNotEmpty) ListSection(title: "DENTRO - JOGADORES", items: viewModel.players),
+              if (out.isNotEmpty) ListSection(title: "FORA", items: viewModel.out),
+              if (doubt.isNotEmpty) ListSection(title: "DÚVIDA", items: viewModel.doubt),
             ],
           );
         },

@@ -1,6 +1,8 @@
 abstract class NextEventPresenter {
   void load(String groupId);
   Stream<NextEventViewModel> get nextEventStream;
+  Stream<bool> get isLoadingStream;
+  void reload(String groupId);
 }
 
 final class NextEventViewModel {

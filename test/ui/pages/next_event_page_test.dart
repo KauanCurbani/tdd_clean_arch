@@ -16,6 +16,7 @@ void main() {
   late Widget sut;
   late String groupId;
   late BehaviorSubject<NextEventViewModel> nextEventSubject;
+  late BehaviorSubject<bool> isLoadingSubject;
 
   void emitNextEventWith({
     List<NextEventPlayerViewModel> goalkeepers = const [],
@@ -29,6 +30,10 @@ void main() {
       out: out,
       doubt: doubt,
     ));
+  }
+
+  void emitNextEventError() {
+    nextEventSubject.addError(Exception());
   }
 
   Widget makeSut() {
@@ -45,9 +50,11 @@ void main() {
     groupId = Faker().guid.guid();
     sut = makeSut();
     nextEventSubject = BehaviorSubject<NextEventViewModel>();
+    isLoadingSubject = BehaviorSubject<bool>();
 
     when(() => presenterMock.load(any())).thenAnswer((_) async {});
     when(() => presenterMock.nextEventStream).thenAnswer((_) => nextEventSubject.stream);
+    when(() => presenterMock.isLoadingStream).thenAnswer((_) => isLoadingSubject.stream);
   });
 
   testWidgets("should load event data on page init", (WidgetTester tester) async {
@@ -79,9 +86,9 @@ void main() {
     await tester.pumpWidget(sut);
     emitNextEventWith(
       goalkeepers: const [
-        NextEventPlayerViewModel(name: "Rodrigo",initials: "R"),
-        NextEventPlayerViewModel(name: "Rafael",initials: "R"),
-        NextEventPlayerViewModel(name: "Kauan",initials: "R"),
+        NextEventPlayerViewModel(name: "Rodrigo", initials: "R"),
+        NextEventPlayerViewModel(name: "Rafael", initials: "R"),
+        NextEventPlayerViewModel(name: "Kauan", initials: "R"),
       ],
     );
     await tester.pump();
@@ -99,9 +106,9 @@ void main() {
     await tester.pumpWidget(sut);
     emitNextEventWith(
       players: const [
-        NextEventPlayerViewModel(name: "Rodrigo",initials: "R"),
-        NextEventPlayerViewModel(name: "Rafael",initials: "R"),
-        NextEventPlayerViewModel(name: "Kauan",initials: "R"),
+        NextEventPlayerViewModel(name: "Rodrigo", initials: "R"),
+        NextEventPlayerViewModel(name: "Rafael", initials: "R"),
+        NextEventPlayerViewModel(name: "Kauan", initials: "R"),
       ],
     );
     await tester.pump();
@@ -166,5 +173,41 @@ void main() {
     expect(find.byType(PlayerPhoto), findsNothing);
     expect(find.byType(PlayerPosition), findsNothing);
     expect(find.byType(PlayerStatus), findsNothing);
+  });
+
+  testWidgets("should present error message on load error", (tester) async {
+    await tester.pumpWidget(sut);
+    emitNextEventError();
+    await tester.pump();
+    expect(find.text("DENTRO - GOLEIROS"), findsNothing);
+    expect(find.text("DENTRO - JOGADORES"), findsNothing);
+    expect(find.text("FORA"), findsNothing);
+    expect(find.text("DÚVIDA"), findsNothing);
+    expect(find.byType(PlayerPhoto), findsNothing);
+    expect(find.byType(PlayerPosition), findsNothing);
+    expect(find.byType(PlayerStatus), findsNothing);
+    expect(find.text("Algo errado aconteceu! Tente novamente."), findsOneWidget);
+    expect(find.text("Recarregar"), findsOneWidget);
+  });
+
+  testWidgets("should load event data on reload click", (WidgetTester tester) async {
+    await tester.pumpWidget(sut);
+    emitNextEventError();
+    await tester.pump();
+    await tester.tap(find.text("Recarregar"));
+    verify(() => presenterMock.reload(groupId)).called(1);
+  });
+
+  testWidgets("should handle spinner on page busy event", (WidgetTester tester) async {
+    await tester.pumpWidget(sut);
+    nextEventSubject.addError(Exception());
+    await tester.pump();
+    isLoadingSubject.add(true);
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    isLoadingSubject.add(false);
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 }
