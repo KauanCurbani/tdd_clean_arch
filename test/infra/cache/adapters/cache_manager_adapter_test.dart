@@ -1,34 +1,14 @@
 import 'dart:convert';
 
 import 'package:advanced_flutter/domain/entities/errors.dart';
-import 'package:advanced_flutter/infra/cache/clients/cache_get_client.dart';
+import 'package:advanced_flutter/infra/cache/adapters/cache_manager_adapter.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_cache_manager/file.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class CacheManagerAdapter implements CacheGetClient {
-  final BaseCacheManager cacheManager;
 
-  CacheManagerAdapter({required this.cacheManager});
-
-  @override
-  Future get(String key) async {
-    try {
-      final info = await cacheManager.getFileFromCache(key);
-      if (info == null) return null;
-      if (info.validTill.isBefore(DateTime.now()) || !info.file.existsSync()) {
-        return null;
-      }
-
-      final response = await info.file.readAsString();
-      return jsonDecode(response);
-    } catch (e) {
-      return null;
-    }
-  }
-}
 
 class CacheManagerMock with Mock implements BaseCacheManager {}
 
@@ -121,5 +101,32 @@ void main() {
 
     final response = await sut.get(key);
     expect(response, json);
+  });
+
+  test("should return null if cache is invalid json", () async {
+    when(() => cacheManager.getFileFromCache(key)).thenAnswer(
+      (_) async => FileInfo(file, FileSource.Cache, validTill, ""),
+    );
+
+    when(() => file.existsSync()).thenReturn(true);
+    when(() => file.readAsString()).thenAnswer((_) async => "{ key: value }");
+
+    final response = await sut.get(key);
+    expect(response, isNull);
+  });
+
+  test("should return json if response is valid", () async {
+    final json = {"key": "value"};
+    when(() => cacheManager.getFileFromCache(key)).thenAnswer(
+      (_) async => FileInfo(file, FileSource.Cache, validTill, ""),
+    );
+
+    when(() => file.existsSync()).thenReturn(true);
+    when(() => file.readAsString()).thenAnswer((_) async => jsonEncode(json));
+
+    final response = await sut.get(key);
+    expect(response, json);
+    expect(response, isA<Map>());
+    expect(response["key"], "value");
   });
 }
